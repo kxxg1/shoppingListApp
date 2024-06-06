@@ -1,59 +1,46 @@
-html, body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Rubik', sans-serif;
-    background-color: #EEF0F4;
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"
+
+const appSettings = {
+    databaseURL: "https://scrim-shopping-app-default-rtdb.asia-southeast1.firebasedatabase.app/"
 }
 
-.container {
-    display: flex;
-    flex-direction: column;
-    max-width: 320px;
-    margin: 30px auto;
+const app = initializeApp(appSettings)
+const database = getDatabase(app)
+const shoppingListInDB = ref(database, "shoppingList")
+
+const inputFieldEl = document.getElementById("input-field")
+const addButtonEl = document.getElementById("add-button")
+const shoppingListEl = document.getElementById("shopping-list")
+
+addButtonEl.addEventListener("click", function() {
+    let inputValue = inputFieldEl.value
+    
+    push(shoppingListInDB, inputValue)
+    
+    clearInputFieldEl()
+
+    appendItemToShoppingListEl(inputValue)
+})
+
+onValue(shoppingListInDB, function(snapshot) {
+    let itemsArray = Object.entries(snapshot.val())
+    
+    for (let i = 0; i < itemsArray.length; i++) {
+        let currentItem = itemsArray[i]
+        let currentItemID = currentItem[0]
+        let currentItemValue = currentItem[1]
+        
+        
+        
+        appendItemToShoppingListEl(currentItemValue)
+    }
+})
+
+function clearInputFieldEl() {
+    inputFieldEl.value = ""
 }
 
-img {
-    width: 150px;
-    margin: 0 auto;
-}
-
-input {
-    color: #432000;
-    background-color: #DCE1EB;
-    border: 0;
-    padding: 15px;
-    border-radius: 8px;
-    font-size: 20px;
-    text-align: center;
-    font-family: 'Rubik', sans-serif;
-    margin: 10px 0;
-}
-
-button {
-    color: #FDFDFD;
-    background-color: #AC485A;
-    border: 0;
-    padding: 15px;
-    border-radius: 8px;
-    font-size: 20px;
-    text-align: center;
-    font-family: 'Rubik', sans-serif;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px; 
-}
-
-ul li {
-    font-size: 20px;
-    background-color: #FFFDF8;
-    padding: 15px; 
-    border-radius: 8px; 
-    flex-grow: 1; 
-    text-align: center; 
-    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2)
+function appendItemToShoppingListEl(itemValue) {
+    shoppingListEl.innerHTML += `<li>${itemValue}</li>`
 }
